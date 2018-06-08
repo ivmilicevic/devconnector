@@ -7,6 +7,9 @@ const passport = require('passport');
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 
+// Load input validation
+const validateProfileInput = require('../../validation/profile');
+
 // @route    GET api/profile/test
 // @desc     Test profile route
 // @access   Public
@@ -18,6 +21,7 @@ router.get('/test', (req, res) => res.json({ msg: 'Profile works' }));
 router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => {
     const errors = {};
     Profile.findOne({ user: req.user.id })
+        .populate('user', ['name', 'avatar'])
         .then(profile => {
             if (!profile) {
                 errors.noprofile = 'There is no profile for this user';
@@ -28,10 +32,50 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
         .catch(err => res.status(404).json(err));
 });
 
+// @route    POST api/profile/handle/:handle
+// @desc     Get profile by handle
+// @access   Public
+router.get('/handle/:handle', (req, res) => {
+    const errors = {};
+    Profile.findOne({ handle: req.params.handle })
+        .populate('user', ['name', 'avatar'])
+        .then(profile => {
+            if (!profile) {
+                errors.noprofile = 'There is no profile for this user';
+                res.status(404).json(errors);
+            }
+
+            res.json(profile);
+        })
+        .catch(err = (res.status(404).json(err)));
+});
+
+// @route    POST api/profile/user/:user_id
+// @desc     Get profile by user ID
+// @access   Public
+router.get('/user/user_id', (req, res) => {
+    const errors = {};
+    Profile.findOne({ user: req.params.user_id })
+        .populate('user', ['name', 'avatar'])
+        .then(profile => {
+            if (!profile) {
+                errors.noprofile = 'There is no profile for this user';
+                res.status(404).json(errors);
+            }
+            res.json(profile);
+        })
+        .catch(err = (res.status(404).json(err)));
+});
+
+
 // @route    POST api/profile
 // @desc     Create or edit user profile
 // @access   Private
 router.post('/', passport.authenticate('jwt', { session: false }), (req, res) => {
+    const { errors, isValid } = validateProfileInput(req.body);
+    if (!isValid) {
+        return res.status(400).json(errors);
+    }
     // Get fields from request
     const profileFields = {};
     profileFields.user = req.user.id;
