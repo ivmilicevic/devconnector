@@ -39,4 +39,4 @@ export const setCurrentUser = decodedToken => {
         type: SET_CURRENT_USER,
         payload: decodedToken
     }
-}
+};

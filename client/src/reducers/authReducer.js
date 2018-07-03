@@ -1,5 +1,4 @@
 import { SET_CURRENT_USER } from '../actions/types';
-import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 import isEmpty from '../validation/is-empty';
 
 const initialState = {
