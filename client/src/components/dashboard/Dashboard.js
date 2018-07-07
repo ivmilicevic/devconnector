@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { getCurrentProfile } from '../../actions/profileActions';
+import { getCurrentProfile, deleteAccount } from '../../actions/profileActions';
 import Spinner from '../common/Spinner';
 import { Link } from 'react-router-dom';
+import ProfileActions from './ProfileActions';
 
 class Dashboard extends Component {
     componentDidMount() {
         this.props.getCurrentProfile();
+    }
+
+    onDeleteClick(e) {
+        this.props.deleteAccount();
     }
 
 
@@ -22,7 +27,18 @@ class Dashboard extends Component {
         else {
             if (Object.keys(profile).length > 0) {
                 // Display profile if user has already created one
-                dashboardContent = <h4>TODO: Display profile</h4>
+                dashboardContent = (
+                    <div>
+                        <p className="lead text-muted">
+                            Welcome <Link to={`/profile/${profile.handle}`}>{user.name}</Link>
+                        </p>
+                        <ProfileActions />
+
+                        <div style={{ marginBottom: '60px' }}>
+                            <button className="btn btn-danger" onClick={this.onDeleteClick.bind(this)}>Delete my account</button>
+                        </div>
+                    </div>
+                )
             }
             else {
                 // User doesn't have profile
@@ -56,7 +72,8 @@ class Dashboard extends Component {
 Dashboard.propTypes = {
     getCurrentProfile: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired,
-    profile: PropTypes.object.isRequired
+    profile: PropTypes.object.isRequired,
+    deleteAccount: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
@@ -64,4 +81,4 @@ const mapStateToProps = state => ({
     auth: state.auth
 });
 
-export default connect(mapStateToProps, { getCurrentProfile })(Dashboard);
+export default connect(mapStateToProps, { getCurrentProfile, deleteAccount })(Dashboard);
